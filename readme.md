@@ -1,19 +1,19 @@
 # odin-holiday-jam
 todo:
-~~setup twitch again
-~~prep tech and resources
-~~snow fall
-~~platformer physics
+- ~~setup twitch again~~
+- ~~prep tech and resources~~
+- ~~snow fall~~
+- ~~platformer physics~~
 
 game:
-room
-    ~~walls~~
-    collision
-spikes
-    ~~dammage~~
-key
-door
-win
+- room
+    - ~~walls~~
+    - collision
+- ~~spikes~~
+    - ~~dammage~~
+- key
+- door
+- win
 
 
 
