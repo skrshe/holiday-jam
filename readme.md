@@ -7,11 +7,12 @@ todo:
 
 game:
 - room
-    - ~~walls~~
+    - walls
     - collision
 - ~~spikes~~
     - ~~dammage~~
 - key
+    pickup
 - door
 - win
 
@@ -24,6 +25,7 @@ game:
 
 stretch:
 - inventory
+- snow interferes with platforming?
 - meta system that give you text puzzles to solve to progress in the game
 - enemies?
 
