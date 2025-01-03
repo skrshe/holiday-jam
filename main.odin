@@ -108,7 +108,8 @@ main :: proc() {
         BeginDrawing()
             if win {
                 ClearBackground(YELLOW)
-                DrawText("you WON!!" , Width / 2 - 50, Height / 2 - 10, 30, GOLD)
+                DrawText("you WON!!" , Width / 2 - 50, Height / 2 - 15, 30, ORANGE)
+                DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, GOLD)
 
                 if IsKeyPressed(.SPACE) do full_reset()
             } else if player.health > 0 {
@@ -118,17 +119,18 @@ main :: proc() {
 
                 drawEnv()
                 drawPlayer()
-                drawSnow()
 
 
                 DrawText("Holiday Jam", 2, 1, 1, RAYWHITE)
                 DrawText(TextFormat("%v", player.health), Width - 20, 1, 1, RED)
             } else {
                 ClearBackground(MAROON)
-                DrawText("you DIED" , Width / 2 - 50, Height / 2 - 10, 30, RAYWHITE)
+                DrawText("you DIED" , Width / 2 - 50, Height / 2 - 15, 30, RAYWHITE)
+                DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, LIGHTGRAY)
 
                 if IsKeyPressed(.SPACE) do full_reset()
             }
+            drawSnow()
 
         EndDrawing()
     }
@@ -171,7 +173,7 @@ updateSnow :: proc() {
 
     for &flake in snowArray {
         flake.x += f32(GetRandomValue(-5, 5)) / 2
-        flake.y += 1 + f32(GetRandomValue(-100,100)) / 100
+        flake.y += 1 + f32(GetRandomValue(-100, 100)) / 100
 
         if flake.y > Height {
             flake.x = f32(GetRandomValue(- flake.tex.width, Width + flake.tex.width))
