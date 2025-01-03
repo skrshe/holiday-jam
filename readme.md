@@ -1,10 +1,9 @@
 # odin-holiday-jam
-a work in progress platformer in odin and raylib made for Karl's odin holiday jam
+a work in progress platformer in odin and raylib made for Karl's [Odin Holiday Jam](https://itch.io/jam/odin-holiday-jam)
 
 'arrow keys' to move left and right
 
 'space' to jump
-
 
 'space' to restart after winning or losing
 
