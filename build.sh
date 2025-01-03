@@ -1,6 +1,9 @@
 #!/bin/bash
-set -ex
 
-odin build *.odin -file -out:holiday-jam
-./holiday-jam
-
+if [ -x "$(command -v make)" ]; then
+    make
+else
+    set -ex
+	odin build . -out:holiday-jam -file
+	./holiday-jam
+fi

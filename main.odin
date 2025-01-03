@@ -14,47 +14,59 @@ Height  :: 720
 frameCounter:= 0
 
 JumpPower :f32= 14
-Gravity   :f32= 1
-Speed     :f32= 4
+MaxSpd    :f32= 4
+G         :f32= 1
+
+keys: i32
+win: bool
 
 Player :: struct {
     using pos: rl.Vector2,
+
     vel:    rl.Vector2,
-    speed:  f32,
-    jump:   bool,
+    spd:    f32,
+    in_air: bool,
     health: i32,
 }
 
+EnvTypeEnum :: enum i32 {
+    none,
+    block,
+    key,
+    lock,
+}
+
+EnvType :: union { EnvTypeEnum, i32 }
+
 EnvItem :: struct {
-    rect:     rl.Rectangle,
-    blocking: bool,
-    hurts:    bool,
-    color:    rl.Color,
+    using rect: rl.Rectangle,
+
+    type:  EnvType,
+    hurts: bool,
+    color: rl.Color,
 }
 
 player: Player
 
-envItems :[dynamic]EnvItem= {
+
+// Map
+envItems:= [dynamic]EnvItem {
     // roof
-    {{ 300, 175, 680, 10 }, true, false,  rl.GRAY },
-
+    {{ 300, 175, 680, 10 },   .block, false, rl.GRAY },
     // walls
-    {{ 300, 175, 10, 360 }, true,  false, rl.GRAY },
-    {{ 980, 175, 10, 300 }, true,  false, rl.GRAY },
-
+    {{ 300, 175, 10, 360 },   .block, false, rl.GRAY },
+    {{ 980, 175, 10, 300 },   .block, false, rl.GRAY },
     // floor
-    {{ 300,   525, 690, 25 }, true, false,  rl.GRAY },
-    {{ 300,   415, 640, 10 }, false, false,  rl.GRAY },
-    {{ 400,   300, 640, 10 }, false, false,  rl.GRAY },
-
-    // danger
-    {{ 635, 495, 5, 5 }, true,  true, rl.RED },
-
-    // door
-    {{ 980, 477, 10,  46 }, true,  true, rl.ORANGE },
-
+    {{ 300,   525, 690, 25 }, .block, false, rl.GRAY },
+    {{ 700,   465, 50, 10 },  .block, false, rl.GRAY },
+    {{ 300,   415, 640, 10 }, .block, false, rl.GRAY },
+    {{ 400,   300, 590, 10 }, .block, false, rl.GRAY },
     // key
-    {{ 330, 205, 5, 5 }, true,  true, rl.YELLOW },
+    {{ 330, 205, 5, 5 },      .key,   false, rl.YELLOW },
+    // door
+    {{ 980, 477, 10,  46 },   .lock,  false, rl.ORANGE },
+    // hurts
+    {{ 635, 505, 5, 5 },      .none,  true,  rl.RED },
 }
 
 // --- art
@@ -83,8 +95,7 @@ main :: proc() {
     snowTexArray[0] = LoadTexture("res/flake1.png")
     snowTexArray[1] = LoadTexture("res/flake2.png")
 
-    player.pos = { 955, 330 }
-    player.health = 10
+    full_reset()
 
     for !WindowShouldClose() {
         frameCounter += 1
@@ -95,7 +106,12 @@ main :: proc() {
         updatePlayer()
 
         BeginDrawing()
-            if player.health > 1 {
+            if win {
+                ClearBackground(YELLOW)
+                DrawText("you WON!!" , Width / 2 - 50, Height / 2 - 10, 30, GOLD)
+
+                if IsKeyPressed(.SPACE) do full_reset()
+            } else if player.health > 0 {
                 ClearBackground(DARKGREEN)
 
                 // DrawTexture(holires, Width/2 - holires.width/2, Height/2 - holires.height/2 - 40, WHITE)
@@ -110,10 +126,29 @@ main :: proc() {
             } else {
                 ClearBackground(MAROON)
                 DrawText("you DIED" , Width / 2 - 50, Height / 2 - 10, 30, RAYWHITE)
+
+                if IsKeyPressed(.SPACE) do full_reset()
             }
 
         EndDrawing()
     }
+}
+
+full_reset :: proc() {
+    win = false
+    player = {
+        pos = { 350, 450 },
+        vel = {},
+        spd = 0,
+        health = 10,
+        in_air = true,
+    }
+}
+
+reset_pos :: proc() {
+    player.pos = { 350, 450 }
+    player.vel = { 0, 0 }
+    player.spd = 0
 }
 
 // --- Updates
@@ -147,61 +182,63 @@ updateSnow :: proc() {
 
 updatePlayer :: proc() {
     using rl
+    using player
 
-    if IsKeyDown(.LEFT)  { player.vel.x -= Speed }
-    if IsKeyDown(.RIGHT) { player.vel.x += Speed }
-    if IsKeyPressed(.H) { player.health -= 1 }
+    //HACK: this should be in  the player struct?
+    prect:= Rectangle { x, y - 25, 10, 25 }
 
-    if IsKeyDown(.SPACE) && !player.jump {
-        player.speed = -JumpPower
-        player.jump = true
+    //TODO: jump or jump velocity doesnt reset on reset
+    if IsKeyDown(.LEFT)  { vel.x -= MaxSpd }
+    if IsKeyDown(.RIGHT) { vel.x += MaxSpd }
+    if IsKeyPressed(.H)  { health -= 1 }
+    if IsKeyPressed(.B)  { win = true }
+
+    if IsKeyDown(.SPACE) && !in_air {
+        spd = -JumpPower
+        in_air = true
     }
 
-    if player.vel.y >  Speed do player.vel.y =  Speed
-    if player.vel.x >  Speed do player.vel.x =  Speed
-    if player.vel.y < -Speed do player.vel.y = -Speed
-    if player.vel.x < -Speed do player.vel.x = -Speed
+    if vel.y >  MaxSpd do vel.y =  MaxSpd
+    if vel.x >  MaxSpd do vel.x =  MaxSpd
+    if vel.y < -MaxSpd do vel.y = -MaxSpd
+    if vel.x < -MaxSpd do vel.x = -MaxSpd
 
-    player.pos += player.vel
-    player.vel /= {1.13, 1.13}
+    pos += vel
+    vel /= {1.13, 1.13}
 
-    if player.y > Height {
-        player.health -= 1
-        player.pos = { 955, 330 }
+    if y > Height {
+        health -= 1
+        reset_pos()
     }
 
     Collision: bool
-    for i in 0 ..< len(envItems) {
-        ei:= &envItems[i]
-        p:= player.pos
 
-        if ( ei.blocking &&
-            ei.rect.x <= p.x &&
-            ei.rect.x + ei.rect.width >= p.x &&
-            ei.rect.y >= p.y &&
-            ei.rect.y <= p.y + player.speed
+    // per item
+    for ei in envItems {
+        if (
+            ei.type == .block &&
+            ei.x <= x && ei.x + ei.width >= x &&
+            ei.y >= y && ei.y <= y + spd
         ) {
             Collision = true
-            player.speed = 0.0
-            p.y = ei.rect.y
+            spd = 0
+            y = ei.y
         }
 
         if ei.hurts {
-            if CheckCollisionRecs(ei.rect, {p.x, p.y, 10, 25}) {
-                player.health -= 1
-                player.pos = { 955, 330 }
+            if CheckCollisionRecs(ei, prect) {
+                health -= 1
+                reset_pos()
             }
         }
     }
 
+    // complete
     if !Collision {
-        // if
-        player.pos.y += player.speed
-        player.speed += Gravity
-        player.jump = true
-
-
-    } else do player.jump = false
+        pos.y += spd
+        spd += G
+        in_air = true
+    } else do in_air = false
 }
 
 // --- Draws
@@ -218,12 +255,15 @@ drawPlayer :: proc() {
     using rl
 
     DrawRectangle(i32(player.x), i32(player.y) - 25, 10, 25, GREEN)
+    DrawCircleV(player.pos, 3, YELLOW)
 }
 
 drawEnv :: proc() {
     using rl
 
-    for i in 0..< len(envItems) {
-        DrawRectangleRec(envItems[i].rect, envItems[i].color)
+    for ei in envItems {
+        using  ei
+        DrawRectangleRec(rect, color)
+        DrawCircle(i32(rect.x), i32(rect.y), 3, YELLOW)
     }
 }

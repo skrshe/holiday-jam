@@ -1,10 +1,9 @@
-FLAGS=-lSDL2 -lSDL2_image -lm -ggdb
+all: main run
 
-holidayjam: main.odin
-	odin build main.odin -out:holiday-jam
-
+run: main
+	./holiday-jam
+main: main.odin
+	odin build . -out:holiday-jam -file
 clean:
 	rm holiday-jam
 
-run:
-	./holiday-jam

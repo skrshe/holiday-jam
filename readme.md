@@ -1,13 +1,24 @@
 # odin-holiday-jam
-todo:
+a work in progress platformer in odin and raylib made for Karl's odin holiday jam
+
+'arrow keys' to move left and right
+
+'space' to jump
+
+
+'space' to restart after winning or losing
+
+
+## todo
 - ~~setup twitch again~~
 - ~~prep tech and resources~~
 - ~~snow fall~~
 - ~~platformer physics~~
+- ~~submit something~~
 
-game:
+## game todo
 - room
-    - walls
+    - ~~1 map~~
     - collision
 - ~~spikes~~
     - ~~dammage~~
@@ -16,29 +27,20 @@ game:
 - door
 - win
 
-
-
-
-
-
-
-
-stretch:
+## stretch goals
 - inventory
-- snow interferes with platforming?
+- snow interferes with platforming somehow?
+    - freezes you?
 - meta system that give you text puzzles to solve to progress in the game
 - enemies?
 
+## ideation
+### theming
+- christmas
+- Overground and underground
+- sweet fruity jam
 
-
-29 early australia end coz sleep
-30 end 6am
-
-# theming
-christmas
-Overground and underground
-
-# idea 1
+### idea 1
 meta game
 4th wall stuff
 compiling is part of game?
