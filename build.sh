@@ -1,9 +1,4 @@
 #!/bin/bash
+set -ex
 
-if [ -x "$(command -v make)" ]; then
-    make
-else
-    set -ex
-	odin build . -out:holiday-jam -file
-	./holiday-jam
-fi
+bin/build_hot_reload.sh
