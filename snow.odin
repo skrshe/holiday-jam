@@ -1,15 +1,17 @@
 package game
 
+// snow
+
 import rl "vendor:raylib"
 
 Flake :: struct {
-    using pos: rl.Vector2,
-    tex: rl.Texture,
+    using pos: Vec2,
+    tex: Tex,
 }
 
 snowArray: [dynamic]Flake
 
-snowTexArray: [2]rl.Texture
+snowTexArray: [2]Tex
 
 updateSnow :: proc() {
     using rl

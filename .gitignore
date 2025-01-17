@@ -1,1 +1,5 @@
 holiday-jam
+game*.bin
+game*.so
+
+out/*

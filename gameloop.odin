@@ -1,5 +1,7 @@
 package game
 
+// game loop
+
 import rl "vendor:raylib"
 
 JumpPower :f32= 14

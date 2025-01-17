@@ -1,10 +1,10 @@
 package game
 
+// game main
+
 import "core:fmt"
 import "core:math/linalg"
 import rl "vendor:raylib"
-
-HeightPx :: 180
 
 Width  :: 1280
 Height :: 720
@@ -27,8 +27,8 @@ game_camera :: proc() -> Cam2D {
 	h := f32(GetScreenHeight())
 
 	return {
-		zoom = h/HeightPx,
-		target = player.pos,
+		zoom = h/Height,
+		target = {Width/2, Height/2},
 		offset = { w/2, h/2 },
 	}
 }
@@ -36,13 +36,15 @@ game_camera :: proc() -> Cam2D {
 ui_camera :: proc() -> Cam2D {
 	return { zoom = f32(
         rl.GetScreenHeight(),
-    ) / HeightPx }
+    ) / Height }
 }
 
 update :: proc() {
     using rl
 
 	input: Vec2
+
+    if IsKeyDown(.Q) do game_shutdown_window()
 
     updateSnow()
     updatePlayer()
@@ -61,8 +63,8 @@ update :: proc() {
         {{ 300,   415, 640, 10 }, .block, false, rl.GRAY },
         {{ 400,   300, 590, 10 }, .block, false, rl.GRAY },
         // step
-        {{ 330,   350, 50, 10 },  .block, false, rl.GRAY },
-        {{ 700,   465, 50, 10 },  .block, false, rl.GRAY },
+        {{ 330,   320, 50, 10 },  .block, false, rl.GRAY },
+        {{ 700,   475, 50, 10 },  .block, false, rl.GRAY },
         // key
         {{ 330, 205, 5, 5 },      .key,   false, rl.YELLOW },
         // door
@@ -86,30 +88,29 @@ draw :: proc() {
 	    ClearBackground(GREEN)
 
 	    BeginMode2D(game_camera())
-            BeginDrawing()
-                if win {
-                    ClearBackground(YELLOW)
-                    DrawText("you WON!!" , Width / 2 - 50, Height / 2 - 15, 30, ORANGE)
-                    DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, GOLD)
+            if win {
+                ClearBackground(YELLOW)
+                DrawText("you WON!!" , Width / 2 - 50, Height / 2 - 15, 30, ORANGE)
+                DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, GOLD)
 
-                    if IsKeyPressed(.SPACE) do reset_full()
-                } else if player.health > 0 {
-                    ClearBackground(DARKGREEN)
+                if IsKeyPressed(.SPACE) do reset_full()
+            } else if player.health > 0 {
+                ClearBackground(DARKGREEN)
 
-                    // DrawTexture(holires, Width/2 - holires.width/2, Height/2 - holires.height/2 - 40, WHITE)
+                // DrawTexture(holires, Width/2 - holires.width/2, Height/2 - holires.height/2 - 40, WHITE)
 
-                    drawEnv()
-                    drawPlayer()
+                drawEnv()
+                drawPlayer()
 
 
-                } else {
-                    ClearBackground(MAROON)
-                    DrawText("you DIED" , Width / 2 - 50, Height / 2 - 15, 30, RAYWHITE)
-                    DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, LIGHTGRAY)
+            } else {
+                ClearBackground(MAROON)
+                DrawText("you DIED" , Width / 2 - 50, Height / 2 - 15, 30, RAYWHITE)
+                DrawText("Press [space] to restart" , Width / 2 - 125, Height / 2 + 20, 27, LIGHTGRAY)
 
-                    if IsKeyPressed(.SPACE) do reset_full()
-                }
-                drawSnow()
+                if IsKeyPressed(.SPACE) do reset_full()
+            }
+            drawSnow()
 
 	    EndMode2D()
 
@@ -122,7 +123,7 @@ draw :: proc() {
                 ), 5, 5, 15, WHITE,
             )
 
-            DrawText("Holiday Jam", Height - 20, 1, 1, RAYWHITE)
+            DrawText("Holiday Jam", 5, Height - 20, 5, RAYWHITE)
             DrawText(TextFormat("%v", player.health), Width - 20, 1, 1, RED)
         EndMode2D()
 
@@ -141,9 +142,10 @@ game_init_window :: proc() {
     using rl
 
 	SetConfigFlags({ .WINDOW_RESIZABLE, .VSYNC_HINT })
-	InitWindow(1280, 720, "my hot odin-rl template!")
+	InitWindow(1280, 720, "snowy holiday jam =)")
 	SetWindowPosition(200, 200)
 	SetTargetFPS(500)
+    SetExitKey(.KEY_NULL)
 }
 
 @(export)
